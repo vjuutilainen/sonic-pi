@@ -1,0 +1,43 @@
+define :playsynth do |chord|
+  use_synth :subpulse
+  play chord, release: 0.8, attack: 2, sustain: 2, release: 2, cutoff: choose([80,90])
+end
+
+define :playaltsynth do |chord|
+  use_synth :hollow
+  play chord, attack: 2, sustain: 5, release: 2, amp: 0.5, cutoff: choose([90,100])
+end
+
+with_fx :reverb, pre_amp: 5, mix: 1, room: 1 do
+  define :drums do
+    sample :elec_soft_kick, rate: 0.5
+    sample :drum_bass_hard
+    sleep 1
+    sample :elec_snare, sustain: 5, rate: 0.5
+    sleep 1
+  end
+end
+
+with_fx :bitcrusher do
+  live_loop :chordloop do
+    mychord = choose([chord(:d4, :minor7), chord(:c4, :major7)])
+    playsynth mychord
+    playaltsynth mychord if one_in 6
+    sleep 4
+  end
+end
+
+live_loop :melodies do
+  use_synth :cnoise
+  play choose(chord(:G2, :minor)), amp: rand(0.6), release: rand(0.4), cutoff: rrand(90, 120)
+  sleep 0.125
+end
+
+live_loop :ambience do
+  sample :ambi_drone, rate: rand(0.5)
+  sleep 4
+end
+
+live_loop :drumloop do
+  drums
+end
